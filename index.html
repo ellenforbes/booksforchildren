@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books</title>
+    
+    <!-- Set Favicon -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E📖%3C/text%3E%3C/svg%3E">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📖 Books I Read To My Children 📖</h1>
+        </header>
+
+        <div class="divider"></div>
+
+        <div class="action-bar">
+            <button class="action-button log-btn" onclick="openLogBookModal()">📝 Log a Book</button>
+            <button class="action-button search-btn">🔍 Search for a Review</button>
+        </div>
+
+        <!-- Log Book Modal -->
+        <div id="logBookModal" class="modal">
+            <div class="modal-content">
+                <!-- Step 1: Book and Reader Selection -->
+                <div id="modalStep1">
+                    <div class="modal-header">
+                        <h2>📖 Log a Book</h2>
+                        <button class="close-btn" onclick="closeLogBookModal()">&times;</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bookSearch">Book</label>
+                        <input type="text" id="bookSearch" name="bookSearch" placeholder="Start typing book name..." autocomplete="off">
+                        <div id="autocompleteResults" class="autocomplete-results"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="readerSelect">Reader</label>
+                        <select id="readerSelect" name="readerSelect">
+                            <option value="Ellen">Ellen</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" onclick="closeLogBookModal()">Cancel</button>
+                        <button type="button" class="submit-btn" onclick="handleLog()">Log</button>
+                        <button type="button" class="log-btn" onclick="handleAddNew()">Add New Book</button>
+                    </div>
+                </div>
+
+                <!-- Step 2a: Update Existing Log -->
+                <div id="modalStep2a" style="display: none;">
+                    <div class="modal-header">
+                        <h2>📝 Update Log</h2>
+                        <button class="close-btn" onclick="closeLogBookModal()">&times;</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="existingTimesRead">Times Read</label>
+                        <input type="number" id="existingTimesRead" name="existingTimesRead" min="1" value="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="existingComment">Comment</label>
+                        <textarea id="existingComment" name="existingComment" placeholder="Share your thoughts about this book..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" onclick="showStep1()">Back</button>
+                        <button type="button" class="submit-btn" onclick="saveLog()">Update Log</button>
+                    </div>
+                </div>
+
+                <!-- Step 2b: Add New Book -->
+                <div id="modalStep2b" style="display: none;">
+                    <div class="modal-header">
+                        <h2>➕ Add New Book</h2>
+                        <button class="close-btn" onclick="closeLogBookModal()">&times;</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newTitle">Title *</label>
+                        <input type="text" id="newTitle" name="newTitle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newAuthor">Author *</label>
+                        <input type="text" id="newAuthor" name="newAuthor" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newType">Type *</label>
+                        <select id="newType" name="newType" required>
+                            <option value="">Select type...</option>
+                            <option value="Board Book">Board Book</option>
+                            <option value="Short Picture Book">Short Picture Book</option>
+                            <option value="Picture Book">Picture Book</option>
+                            <option value="Early Reader">Early Reader</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newTimesRead">Times Read</label>
+                        <input type="number" id="newTimesRead" name="newTimesRead" min="1" value="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newComment">Comment</label>
+                        <textarea id="newComment" name="newComment" placeholder="Share your thoughts about this book..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" onclick="showStep1()">Back</button>
+                        <button type="button" class="submit-btn" onclick="saveNewBook()">Save Book</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-placeholder">
+                📊 Reading Statistics Chart
+                <br><small>(Chart would be displayed here)</small>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="review-section">
+            <div class="book-header">
+                <div class="book-info">
+                    <h2 class="book-title">The Little Yellow Digger</h2>
+                    <h3 class="book-author">Betty and Alan Gilderdale</h3>
+                    <h3 class="review_date">2025-12-23</h3>
+                </div>
+                <div class="book-cover">
+                    <img src="reviewphotos/littleyellowdigger/cover.jpg" alt="The Little Yellow Digger cover">
+                </div>
+            </div>
+
+            <div class="review-content-with-sidebar">
+                <div class="main-content">
+                    <div class="review-content">
+                        <p>This is what I would read if I wanted to continue the torture of my workday into my off hours. It describes the terrible choices made by probably aging white men with protruding bellies when faced with a problem.</p>
+                        <br>
+                        <p>Because at my work, when something goes wrong, we don't sit back, assess and then ask the smartest person in the room what might be the best solution. We just go bigger. We go bolder. We get more bigger diggers.</p>
+                        <br>
+                        <p>And this is exactly what happens in this children's book, the digger is stuck so instead of any lateral thinking, a bigger digger is ordered in immediately. To the absolute delight of my three-year-old. And every time, I am met with crippling angst that this is where the bad decision making starts. That this is why as a society we must end up four stuck diggers in before we realise (via a meeting that should have been an email) that it is a different variable that needs adjusting, in this instance – rain.</p>
+                    </div>
+                </div>
+                <div class="sidebar-image">
+                    <img src="reviewphotos/littleyellowdigger/sidepicture.jpg" alt="Side image">
+                </div>
+            </div>
+
+            <div class="image-groups">
+                <div class="image-group">
+                    <div class="book-image">
+                        <img src="reviewphotos/littleyellowdigger/picture1.jpg" alt="Book image 1">
+                    </div>
+                    <div class="book-image">
+                        <img src="reviewphotos/littleyellowdigger/picture2.jpg" alt="Book image 2">
+                    </div>
+                </div>
+                <div class="image-group">
+                    <div class="book-image">
+                        <img src="reviewphotos/littleyellowdigger/picture3.jpg" alt="Book image 3">
+                    </div>
+                    <div class="book-image">
+                        <img src="reviewphotos/littleyellowdigger/picture4.jpg" alt="Book image 4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-content">
+                <p>And so, I finish the book thinking well, tomorrow there will be yet another day of my workplace ordering more diggers, bigger diggers, more shitty staff, more licences, bigger computers rather than looking laterally for the optimal solution and perhaps asking the intelligent engineers what they think. Rest assured, they will ask the dumb engineers because they will undoubtedly answer, in unison with my three year old – MORE! BIGGER! DIGGER!</p>
+            </div>
+        </div>
+    </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+  
+</body>
+</html>
