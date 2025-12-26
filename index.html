@@ -61,9 +61,16 @@
                         <button class="close-btn" onclick="closeLogBookModal()">&times;</button>
                     </div>
 
-                    <div class="form-group">
-                        <label for="existingTimesRead">Times Read</label>
-                        <input type="number" id="existingTimesRead" name="existingTimesRead" min="1" value="1">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="timesAlreadyRead">Times Already Read</label>
+                            <input type="number" id="timesAlreadyRead" name="timesAlreadyRead" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="readsToAdd">Reads to Add</label>
+                            <input type="number" id="readsToAdd" name="readsToAdd" min="0" value="1">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -124,10 +131,12 @@
             </div>
         </div>
 
+        <div class="divider"></div>
+
         <div class="chart-section">
-            <div class="chart-placeholder">
-                📊 Reading Statistics Chart
-                <br><small>(Chart would be displayed here)</small>
+            <h2 style="color: #C04A7A; margin-bottom: 20px;">Most Read Books</h2>
+            <div id="barChart" class="bar-chart-container">
+                <div class="loading">Loading chart...</div>
             </div>
         </div>
 
@@ -138,7 +147,8 @@
                 <div class="book-info">
                     <h2 class="book-title">The Little Yellow Digger</h2>
                     <h3 class="book-author">Betty and Alan Gilderdale</h3>
-                    <h3 class="review_date">2025-12-23</h3>
+                    <h4 class="review_date">Reviewed: 2025-12-23</h4>
+                    <h4 class="reviews">Child: 🔁 Obsessed / Adult: 🚨 Hide It</h4>
                 </div>
                 <div class="book-cover">
                     <img src="reviewphotos/littleyellowdigger/cover.jpg" alt="The Little Yellow Digger cover">
@@ -182,6 +192,85 @@
             <div class="review-content">
                 <p>And so, I finish the book thinking well, tomorrow there will be yet another day of my workplace ordering more diggers, bigger diggers, more shitty staff, more licences, bigger computers rather than looking laterally for the optimal solution and perhaps asking the intelligent engineers what they think. Rest assured, they will ask the dumb engineers because they will undoubtedly answer, in unison with my three year old – MORE! BIGGER! DIGGER!</p>
             </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="review-section">
+            <div class="book-header">
+                <div class="book-info">
+                    <h2 class="book-title">All Birds Have Anxiety</h2>
+                    <h3 class="book-author">Kathy Hoopmann</h3>
+                    <h4 class="review_date">Reviewed: 2025-12-26</h4>
+                    <h4 class="reviews">Child: 🚫 Rejected / Adult: ❤️ Love Reading It</h4>
+                </div>
+                <div class="book-cover">
+                    <img src="reviewphotos/allbirdshaveanxiety/cover.jpg" alt="All Birds Have Anxiety cover">
+                </div>
+            </div>
+
+            <div class="review-content">
+                        <p>So I'm usually not a fan of 'message books' for kids. Not deep messages anyway, Ordinarily I just want to enjoy lack of plot, bright colours and animals sounds before all the animals quietly go to bed (real and imagined).</p>
+                        <br>
+                        <p>However, as I have been influenced by seemingly half the male millennials around me turning into birders, I too am now tickled pink by birds.  And this book.</p>
+            </div>
+
+            <div class="image-groups">
+                <div class="image-group">
+                    <div class="book-image">
+                        <img src="reviewphotos/allbirdshaveanxiety/picture1.jpg" alt="Book image 1">
+                    </div>
+                    <div class="book-image">
+                        <img src="reviewphotos/allbirdshaveanxiety/picture2.jpg" alt="Book image 2">
+                    </div>
+                </div>
+                <div class="image-group">
+                    <div class="book-image">
+                        <img src="reviewphotos/allbirdshaveanxiety/picture3.jpg" alt="Book image 3">
+                    </div>
+                    <div class="book-image">
+                        <img src="reviewphotos/allbirdshaveanxiety/picture4.jpg" alt="Book image 4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-content">
+                <p>Because if there is one way to drive home truths about life and the anxious state we all live in, it's with lovely pictures of birds.</p>
+            </div>
+        </div>
+
+                <div class="divider"></div>
+
+        <div class="review-section">
+            <div class="book-header">
+                <div class="book-info">
+                    <h2 class="book-title">Where is the Green Sheep?</h2>
+                    <h3 class="book-author">Mem Fox</h3>
+                    <h4 class="review_date">Reviewed: 2025-12-26</h4>
+                    <h4 class="reviews">Child: 👍 Happy Listener / Adult: ❤️ Love Reading It</h4>
+                </div>
+                <div class="book-cover">
+                    <img src="reviewphotos/whereisthegreensheep/cover.jpg" alt="Where Is The Green Sheep cover">
+                </div>
+            </div>
+
+            <div class="review-content-with-sidebar">
+                <div class="main-content">
+                    <div class="review-content">
+                        <p>It's a classic.  I have no faults with it because what doesn't this book do!!</p>
+                        <br>
+                        <p>This book has rhyme, it's about an animal, it has colors, so many colors.  It has directions, it has interests.  You can spend five minutes on page 15 examining who is in the train or you can say train choo choo and move on with your life because tonight is an early bed night.</p>
+                        <br>
+                        <p>I did hear many children cry during the stage version of Where is the Green Sheep but I will happily chalk that up to people look really weird in sheep costumes and children are stupid.</p>
+                        <br>
+                        <p>This book has nothing that isn't prefect for me. From moving the book impossibly close to my child's face for the near sheep (hilarious, every time) to being able to join in the refrain 'but where is the green sheep?'. This is, hands down a great book.</p>
+                        </div>
+                </div>
+                <div class="sidebar-image">
+                    <img src="reviewphotos/whereisthegreensheep/sidepicture.jpg" alt="Side image">
+                </div>
+            </div>
+
         </div>
     </div>
 

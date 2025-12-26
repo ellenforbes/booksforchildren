@@ -8,6 +8,7 @@ var selectedBook = null;
 var selectedBookUid = null;
 var selectedReader = 'Ellen';
 var isNewEntry = false;
+var existingTimesRead = 0; // Store the existing read count
 
 async function loadData() {
     try {
@@ -51,6 +52,7 @@ function resetModal() {
     selectedBookUid = null;
     selectedReader = 'Ellen';
     isNewEntry = false;
+    existingTimesRead = 0;
     document.getElementById('bookSearch').value = '';
     document.getElementById('autocompleteResults').innerHTML = '';
     document.getElementById('autocompleteResults').style.display = 'none';
@@ -136,12 +138,16 @@ async function handleLog() {
         if (counterResult.data) {
             // Existing entry found - update mode
             isNewEntry = false;
-            document.getElementById('existingTimesRead').value = counterResult.data.times_read || 1;
+            existingTimesRead = counterResult.data.times_read || 0;
+            document.getElementById('timesAlreadyRead').value = existingTimesRead;
+            document.getElementById('readsToAdd').value = 1;
             document.getElementById('existingComment').value = counterResult.data.comment || '';
         } else {
             // No entry for this reader yet - create mode
             isNewEntry = true;
-            document.getElementById('existingTimesRead').value = 1;
+            existingTimesRead = 0;
+            document.getElementById('timesAlreadyRead').value = 0;
+            document.getElementById('readsToAdd').value = 1;
             document.getElementById('existingComment').value = '';
         }
         
@@ -172,7 +178,8 @@ function handleAddNew() {
 }
 
 async function saveLog() {
-    var timesRead = parseInt(document.getElementById('existingTimesRead').value);
+    var readsToAdd = parseInt(document.getElementById('readsToAdd').value) || 0;
+    var totalTimesRead = existingTimesRead + readsToAdd;
     var comment = document.getElementById('existingComment').value;
 
     try {
@@ -181,7 +188,7 @@ async function saveLog() {
             var result = await supabaseClient.from('book_counter').insert({
                 book_uid: selectedBookUid,
                 reader: selectedReader,
-                times_read: timesRead,
+                times_read: totalTimesRead,
                 comment: comment
             });
 
@@ -190,7 +197,7 @@ async function saveLog() {
         } else {
             // Update existing entry
             var result = await supabaseClient.from('book_counter').update({
-                times_read: timesRead,
+                times_read: totalTimesRead,
                 comment: comment
             }).eq('book_uid', selectedBookUid)
                 .eq('reader', selectedReader);
@@ -307,3 +314,85 @@ window.onclick = function(event) {
         closeLogBookModal();
     }
 };
+
+
+// Add this function to fetch and display the bar chart
+async function loadBarChart() {
+    try {
+        var result = await supabaseClient
+            .from('top_10_most_read_books')
+            .select('title, read_count')
+            .order('read_count', { ascending: false });
+
+        if (result.error) throw result.error;
+
+        var chartContainer = document.getElementById('barChart');
+        
+        if (!result.data || result.data.length === 0) {
+            chartContainer.innerHTML = '<div class="no-data">No reading data available yet.</div>';
+            return;
+        }
+
+        // Find max value for scaling
+        var maxReads = Math.max(...result.data.map(function(book) { return book.read_count; }));
+
+        // Generate bar chart HTML
+        var chartHTML = result.data.map(function(book) {
+            var percentage = (book.read_count / maxReads) * 100;
+            return '<div class="bar-item">' +
+                   '<div class="bar-wrapper">' +
+                   '<div class="bar-label">' + book.title + '</div>' +
+                   '<div class="bar-fill" style="width: ' + percentage + '%">' +
+                   '<span class="bar-value">' + book.read_count + '</span>' +
+                   '</div>' +
+                   '</div>' +
+                   '</div>';
+        }).join('');
+
+        chartContainer.innerHTML = chartHTML;
+    } catch (error) {
+        console.error('Error loading bar chart:', error);
+        document.getElementById('barChart').innerHTML = '<div class="error">Error loading chart data</div>';
+    }
+}
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadData();
+    loadBarChart(); // Add this line
+    
+    // ... rest of your existing DOMContentLoaded code
+    var bookSearch = document.getElementById('bookSearch');
+    var autocompleteResults = document.getElementById('autocompleteResults');
+
+    bookSearch.addEventListener('input', function() {
+        var searchTerm = this.value.toLowerCase();
+        
+        if (searchTerm.length === 0) {
+            autocompleteResults.style.display = 'none';
+            selectedBook = null;
+            return;
+        }
+
+        var matches = allBooks.filter(function(book) {
+            return book.book.toLowerCase().includes(searchTerm) || 
+                    book.author.toLowerCase().includes(searchTerm);
+        });
+
+        if (matches.length > 0) {
+            autocompleteResults.innerHTML = matches.map(function(book) {
+                var safeBook = book.book.replace(/'/g, "\\'");
+                var safeAuthor = book.author.replace(/'/g, "\\'");
+                return '<div class="autocomplete-item" onclick="selectBook(\'' + safeBook + '\', \'' + safeAuthor + '\')">' + 
+                        book.book + ' - ' + book.author + '</div>';
+            }).join('');
+            autocompleteResults.style.display = 'block';
+        } else {
+            autocompleteResults.style.display = 'none';
+        }
+    });
+
+    document.getElementById('readerSelect').addEventListener('change', function() {
+        selectedReader = this.value;
+    });
+});
