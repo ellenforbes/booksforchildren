@@ -14,7 +14,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>📖 Books I Read To My Children 📖</h1>
+            <h1>📖 Books I Read 📖</h1>
         </header>
 
         <div class="divider"></div>
@@ -22,6 +22,40 @@
         <div class="action-bar">
             <button class="action-button log-btn" onclick="openLogBookModal()">📝 Log a Book</button>
             <button class="action-button search-btn">🔍 Search for a Review</button>
+        </div>
+        
+        <div class="divider"></div>
+
+        <div class="activity-section">
+            <div class="activity-tracker">
+                
+                <!-- Activity Minutes Entry -->
+                <div class="activity-row">
+                    <span class="activity-text">I, </span>
+                    <select id="completer1" class="inline-select name-select"></select>
+                    <span class="activity-text">, spent </span>
+                    <input type="number" id="minutes" class="inline-number" min="1" value="20">
+                    <span class="activity-text"> minutes </span>
+                    <input type="text" id="activity1" class="inline-text" list="activityList1" placeholder="activity">
+                    <datalist id="activityList1"></datalist>
+                    <span class="activity-text">.</span>
+                    <button class="inline-submit-btn" onclick="submitActivityMinutes()">Submit</button>
+                </div>
+
+                <!-- Activity Times Entry -->
+                <div class="activity-row">
+                    <span class="activity-text">I, </span>
+                    <select id="completer2" class="inline-select name-select"></select>
+                    <span class="activity-text">, was </span>
+                    <input type="text" id="activity2" class="inline-text" list="activityList2" placeholder="activity">
+                    <datalist id="activityList2"></datalist>
+                    <span class="activity-text"> </span>
+                    <input type="number" id="times" class="inline-number" min="1" value="5">
+                    <span class="activity-text"> times.</span>
+                    <button class="inline-submit-btn" onclick="submitActivityTimes()">Submit</button>
+                </div>
+
+            </div>
         </div>
 
         <!-- Log Book Modal -->
@@ -59,6 +93,22 @@
                     <div class="modal-header">
                         <h2>📝 Update Log</h2>
                         <button class="close-btn" onclick="closeLogBookModal()">&times;</button>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="updateChildRating">Child Rating</label>
+                            <select id="updateChildRating" name="updateChildRating">
+                                <option value="">Select rating...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updateAdultRating">Adult Rating</label>
+                            <select id="updateAdultRating" name="updateAdultRating">
+                                <option value="">Select rating...</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-row">
@@ -114,6 +164,20 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="newChildRating">Child Rating</label>
+                        <select id="newChildRating" name="newChildRating">
+                            <option value="">Select rating...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newAdultRating">Adult Rating</label>
+                        <select id="newAdultRating" name="newAdultRating">
+                            <option value="">Select rating...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="newTimesRead">Times Read</label>
                         <input type="number" id="newTimesRead" name="newTimesRead" min="1" value="1">
                     </div>
@@ -124,10 +188,11 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="cancel-btn" onclick="showStep1()">Back</button>
                         <button type="button" class="submit-btn" onclick="saveNewBook()">Save Book</button>
                     </div>
                 </div>
+
+
             </div>
         </div>
 

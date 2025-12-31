@@ -114,8 +114,8 @@ async function handleLog() {
     }
 
     try {
-        // First get the book UID from books table
-        var bookResult = await supabaseClient.from('books').select('uid')
+        // First get the book UID and ratings from books table
+        var bookResult = await supabaseClient.from('books').select('uid, child_rating, adult_rating')
             .ilike('title', selectedBook.book)
             .ilike('author', selectedBook.author)
             .single();
@@ -126,6 +126,10 @@ async function handleLog() {
         }
         
         selectedBookUid = bookResult.data.uid;
+
+        // Set the rating dropdowns to current values
+        document.getElementById('updateChildRating').value = bookResult.data.child_rating || '';
+        document.getElementById('updateAdultRating').value = bookResult.data.adult_rating || '';
 
         // Now get the book_counter entry
         var counterResult = await supabaseClient.from('book_counter').select('*')
@@ -181,8 +185,23 @@ async function saveLog() {
     var readsToAdd = parseInt(document.getElementById('readsToAdd').value) || 0;
     var totalTimesRead = existingTimesRead + readsToAdd;
     var comment = document.getElementById('existingComment').value;
+    var childRating = document.getElementById('updateChildRating').value;
+    var adultRating = document.getElementById('updateAdultRating').value;
 
     try {
+        // Update ratings in books table if they've changed
+        var updateData = {};
+        if (childRating) updateData.child_rating = parseInt(childRating);
+        if (adultRating) updateData.adult_rating = parseInt(adultRating);
+        
+        if (Object.keys(updateData).length > 0) {
+            var ratingUpdateResult = await supabaseClient.from('books')
+                .update(updateData)
+                .eq('uid', selectedBookUid);
+            
+            if (ratingUpdateResult.error) throw ratingUpdateResult.error;
+        }
+
         if (isNewEntry) {
             // Create new entry
             var result = await supabaseClient.from('book_counter').insert({
@@ -218,8 +237,12 @@ async function saveNewBook() {
     var title = document.getElementById('newTitle').value;
     var author = document.getElementById('newAuthor').value;
     var type = document.getElementById('newType').value;
+    var childRating = document.getElementById('newChildRating').value;
+    var adultRating = document.getElementById('newAdultRating').value;
     var timesRead = parseInt(document.getElementById('newTimesRead').value);
     var comment = document.getElementById('newComment').value;
+
+    console.log('Attempting to save book:', { title, author, type, childRating, adultRating });
 
     if (!title || !author || !type) {
         alert('Please fill in all required fields');
@@ -233,24 +256,53 @@ async function saveNewBook() {
             .ilike('author', author)
             .maybeSingle();
 
+        console.log('Book check result:', bookCheckResult);
+
         var bookUid;
 
         if (bookCheckResult.data) {
-            // Book exists, use its UID
+            console.log('Book exists, updating...');
+            // Book exists, update it with ratings if provided
+            if (childRating || adultRating) {
+                var updateData = {};
+                if (childRating) updateData.child_rating = parseInt(childRating);
+                if (adultRating) updateData.adult_rating = parseInt(adultRating);
+                
+                var updateResult = await supabaseClient.from('books')
+                    .update(updateData)
+                    .eq('uid', bookCheckResult.data.uid);
+                
+                console.log('Update result:', updateResult);
+            }
             bookUid = bookCheckResult.data.uid;
         } else {
+            console.log('Book does not exist, creating new...');
             // Book doesn't exist, create it
-            var newBookResult = await supabaseClient.from('books').insert({
+            var newBookData = {
                 title: title,
                 author: author,
                 type: type
-            }).select('uid').single();
+            };
+            
+            if (childRating) newBookData.child_rating = parseInt(childRating);
+            if (adultRating) newBookData.adult_rating = parseInt(adultRating);
+            
+            console.log('New book data:', newBookData);
+            
+            var newBookResult = await supabaseClient.from('books').insert(newBookData).select('uid').single();
 
-            if (newBookResult.error) throw newBookResult.error;
+            console.log('New book result:', newBookResult);
+
+            if (newBookResult.error) {
+                console.error('Error creating book:', newBookResult.error);
+                throw newBookResult.error;
+            }
             bookUid = newBookResult.data.uid;
+            console.log('New book UID:', bookUid);
         }
 
         // Now insert into book_counter
+        console.log('Inserting into book_counter with UID:', bookUid);
         var counterResult = await supabaseClient.from('book_counter').insert({
             book_uid: bookUid,
             reader: selectedReader,
@@ -258,17 +310,23 @@ async function saveNewBook() {
             comment: comment
         });
 
-        if (counterResult.error) throw counterResult.error;
+        console.log('Counter result:', counterResult);
+
+        if (counterResult.error) {
+            console.error('Error creating counter:', counterResult.error);
+            throw counterResult.error;
+        }
 
         alert('New book added successfully!');
         closeLogBookModal();
         loadData();
-        location.reload();
+        //location.reload();
     } catch (error) {
         console.error('Error adding new book:', error);
         alert('Error adding new book: ' + error.message);
     }
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     loadData();
@@ -316,6 +374,175 @@ window.onclick = function(event) {
 };
 
 
+// Load book ratings from lookup table
+async function loadBookRatings() {
+    try {
+        var ratingsResult = await supabaseClient.from('lookup_bookratings')
+            .select('rater, rating_description, rating_integer')
+            .order('rating_integer');
+
+        if (ratingsResult.error) throw ratingsResult.error;
+
+        if (ratingsResult.data) {
+            // Filter child and adult ratings
+            var childRatings = ratingsResult.data.filter(function(r) { return r.rater === 'child'; });
+            var adultRatings = ratingsResult.data.filter(function(r) { return r.rater === 'adult'; });
+
+            // Generate options HTML
+            var childOptions = '<option value="">Select rating...</option>' + 
+                childRatings.map(function(rating) {
+                    return '<option value="' + rating.rating_integer + '">' + 
+                           rating.rating_description + '</option>';
+                }).join('');
+            
+            var adultOptions = '<option value="">Select rating...</option>' + 
+                adultRatings.map(function(rating) {
+                    return '<option value="' + rating.rating_integer + '">' + 
+                           rating.rating_description + '</option>';
+                }).join('');
+
+            // Populate Add New Book dropdowns
+            document.getElementById('newChildRating').innerHTML = childOptions;
+            document.getElementById('newAdultRating').innerHTML = adultOptions;
+
+            // Populate Update Log dropdowns
+            document.getElementById('updateChildRating').innerHTML = childOptions;
+            document.getElementById('updateAdultRating').innerHTML = adultOptions;
+        }
+    } catch (error) {
+        console.error('Error loading book ratings:', error);
+    }
+}
+
+// Load activity options and user names
+async function loadActivityTrackerData() {
+    try {
+        // Load unique activities from activity_minutes table
+        var minutesResult = await supabaseClient.from('activity_minutes').select('activity');
+        
+        var minutesActivities = new Set();
+        if (minutesResult.data) {
+            minutesResult.data.forEach(function(item) {
+                if (item.activity) {
+                    minutesActivities.add(item.activity);
+                }
+            });
+        }
+
+        // Load unique activities from activity_times table
+        var timesResult = await supabaseClient.from('activity_times').select('activity');
+        
+        var timesActivities = new Set();
+        if (timesResult.data) {
+            timesResult.data.forEach(function(item) {
+                if (item.activity) {
+                    timesActivities.add(item.activity);
+                }
+            });
+        }
+
+        // Populate activityList1 with only activity_minutes activities
+        var minutesArray = Array.from(minutesActivities).sort();
+        var datalist1 = document.getElementById('activityList1');
+        datalist1.innerHTML = minutesArray.map(function(activity) {
+            return '<option value="' + activity + '">';
+        }).join('');
+
+        // Populate activityList2 with only activity_times activities
+        var timesArray = Array.from(timesActivities).sort();
+        var datalist2 = document.getElementById('activityList2');
+        datalist2.innerHTML = timesArray.map(function(activity) {
+            return '<option value="' + activity + '">';
+        }).join('');
+
+        // Load users from lookup_users table
+        var usersResult = await supabaseClient.from('lookup_users').select('name').order('name');
+        
+        if (usersResult.data && usersResult.data.length > 0) {
+            var userOptions = usersResult.data.map(function(user) {
+                return '<option value="' + user.name + '"' + 
+                       (user.name === 'Ellen' ? ' selected' : '') + '>' + 
+                       user.name + '</option>';
+            }).join('');
+            
+            document.getElementById('completer1').innerHTML = userOptions;
+            document.getElementById('completer2').innerHTML = userOptions;
+        } else {
+            // Fallback if no users found
+            document.getElementById('completer1').innerHTML = '<option value="Ellen">Ellen</option>';
+            document.getElementById('completer2').innerHTML = '<option value="Ellen">Ellen</option>';
+        }
+    } catch (error) {
+        console.error('Error loading activity tracker data:', error);
+    }
+}
+
+
+async function submitActivityMinutes() {
+    var completer = document.getElementById('completer1').value;
+    var minutes = parseInt(document.getElementById('minutes').value);
+    var activity = document.getElementById('activity1').value.trim();
+
+    if (!activity || !minutes || minutes <= 0) {
+        alert('Please fill in all fields with valid values');
+        return;
+    }
+
+    try {
+        var today = new Date().toISOString().split('T')[0];
+        
+        var result = await supabaseClient.from('activity_minutes').insert({
+            activity: activity,
+            minutes: minutes,
+            date_completed: today,
+            completer: completer
+        });
+
+        if (result.error) throw result.error;
+
+        alert('Activity logged successfully!');
+        document.getElementById('minutes').value = 20;
+        document.getElementById('activity1').value = '';
+        loadActivityTrackerData(); // Refresh the activity list
+    } catch (error) {
+        console.error('Error submitting activity minutes:', error);
+        alert('Error logging activity: ' + error.message);
+    }
+}
+
+async function submitActivityTimes() {
+    var completer = document.getElementById('completer2').value;
+    var times = parseInt(document.getElementById('times').value);
+    var activity = document.getElementById('activity2').value.trim();
+
+    if (!activity || !times || times <= 0) {
+        alert('Please fill in all fields with valid values');
+        return;
+    }
+
+    try {
+        var today = new Date().toISOString().split('T')[0];
+        
+        var result = await supabaseClient.from('activity_times').insert({
+            activity: activity,
+            times: times,
+            date_completed: today,
+            completer: completer
+        });
+
+        if (result.error) throw result.error;
+
+        alert('Activity logged successfully!');
+        document.getElementById('times').value = 5;
+        document.getElementById('activity2').value = '';
+        loadActivityTrackerData(); // Refresh the activity list
+    } catch (error) {
+        console.error('Error submitting activity times:', error);
+        alert('Error logging activity: ' + error.message);
+    }
+}
+
+
 // Add this function to fetch and display the bar chart
 async function loadBarChart() {
     try {
@@ -359,7 +586,9 @@ async function loadBarChart() {
 // Call this function when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     loadData();
-    loadBarChart(); // Add this line
+    loadBarChart(); 
+    loadActivityTrackerData();
+    loadBookRatings(); 
     
     // ... rest of your existing DOMContentLoaded code
     var bookSearch = document.getElementById('bookSearch');

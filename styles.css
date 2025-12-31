@@ -525,3 +525,84 @@ header h1 {
         font-size: 1em;
     }
 }
+
+.activity-section {
+    padding: 40px;
+}
+
+.activity-tracker {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 0; /* Remove the margin */
+}
+
+
+.activity-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 15px 0;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.8;
+}
+.activity-text {
+    color: #333;
+    margin: 0 2px;
+}
+
+.inline-select, .inline-number, .inline-text {
+    border: none;
+    border-bottom: 2px solid #C04A7A;
+    background: white;
+    padding: 4px 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #C04A7A;
+    margin: 0 4px;
+    border-radius: 4px 4px 0 0;
+}
+
+.inline-select:focus, .inline-number:focus, .inline-text:focus {
+    outline: none;
+    border-bottom-color: #8B3355;
+    background: #fff9fc;
+}
+
+.name-select {
+    min-width: 100px;
+}
+
+.inline-number {
+    width: 60px;
+    text-align: center;
+}
+
+.inline-text {
+    min-width: 150px;
+}
+
+.inline-submit-btn {
+    background: #C04A7A;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: 12px;
+    transition: background 0.3s;
+}
+
+.inline-submit-btn:hover {
+    background: #8B3355;
+}
+
+.inline-submit-btn:active {
+    transform: scale(0.98);
+}
