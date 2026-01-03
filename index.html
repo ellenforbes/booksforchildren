@@ -23,7 +23,7 @@
             <button class="action-button log-btn" onclick="openLogBookModal()">📝 Log a Book</button>
             <button class="action-button search-btn">🔍 Search for a Review</button>
         </div>
-        
+
         <div class="divider"></div>
 
         <div class="activity-section">
@@ -55,8 +55,18 @@
                     <button class="inline-submit-btn" onclick="submitActivityTimes()">Submit</button>
                 </div>
 
+                <!-- Overheard Entry -->
+                <div class="activity-row">
+                    <span class="activity-text">I, </span>
+                    <select id="completer3" class="inline-select name-select"></select>
+                    <span class="activity-text">, overheard </span>
+                    <input type="text" id="overheardText" class="inline-text" placeholder="what did you hear?">
+                    <button class="inline-submit-btn" onclick="submitOverheard()">Submit</button>
+                </div>
+
             </div>
         </div>
+
 
         <!-- Log Book Modal -->
         <div id="logBookModal" class="modal">

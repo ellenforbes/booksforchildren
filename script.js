@@ -467,16 +467,17 @@ async function loadActivityTrackerData() {
             
             document.getElementById('completer1').innerHTML = userOptions;
             document.getElementById('completer2').innerHTML = userOptions;
+            document.getElementById('completer3').innerHTML = userOptions;
         } else {
             // Fallback if no users found
             document.getElementById('completer1').innerHTML = '<option value="Ellen">Ellen</option>';
             document.getElementById('completer2').innerHTML = '<option value="Ellen">Ellen</option>';
+            document.getElementById('completer3').innerHTML = '<option value="Ellen">Ellen</option>';
         }
     } catch (error) {
         console.error('Error loading activity tracker data:', error);
     }
 }
-
 
 async function submitActivityMinutes() {
     var completer = document.getElementById('completer1').value;
@@ -489,7 +490,7 @@ async function submitActivityMinutes() {
     }
 
     try {
-        var today = new Date().toISOString().split('T')[0];
+        var today = new Date().toISOString();
         
         var result = await supabaseClient.from('activity_minutes').insert({
             activity: activity,
@@ -521,7 +522,7 @@ async function submitActivityTimes() {
     }
 
     try {
-        var today = new Date().toISOString().split('T')[0];
+        var today = new Date().toISOString();
         
         var result = await supabaseClient.from('activity_times').insert({
             activity: activity,
@@ -542,6 +543,33 @@ async function submitActivityTimes() {
     }
 }
 
+async function submitOverheard() {
+    var completer = document.getElementById('completer3').value;
+    var overheardText = document.getElementById('overheardText').value.trim();
+
+    if (!overheardText) {
+        alert('Please enter what you overheard');
+        return;
+    }
+
+    try {
+        var now = new Date().toISOString();
+        
+        var result = await supabaseClient.from('things_overheard').insert({
+            overheard: overheardText,
+            date_completed: now,
+            completer: completer
+        });
+
+        if (result.error) throw result.error;
+
+        alert('Overheard entry saved successfully!');
+        document.getElementById('overheardText').value = '';
+    } catch (error) {
+        console.error('Error submitting overheard:', error);
+        alert('Error saving entry: ' + error.message);
+    }
+}
 
 // Add this function to fetch and display the bar chart
 async function loadBarChart() {
