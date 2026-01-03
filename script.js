@@ -10,6 +10,26 @@ var selectedReader = 'Ellen';
 var isNewEntry = false;
 var existingTimesRead = 0; // Store the existing read count
 
+
+// Get local time with timezone offset
+function getLocalDateTime() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    var hours = String(now.getHours()).padStart(2, '0');
+    var minutes = String(now.getMinutes()).padStart(2, '0');
+    var seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    // Get timezone offset in format +10:00 or -05:00
+    var offset = -now.getTimezoneOffset();
+    var offsetHours = String(Math.floor(Math.abs(offset) / 60)).padStart(2, '0');
+    var offsetMinutes = String(Math.abs(offset) % 60).padStart(2, '0');
+    var offsetSign = offset >= 0 ? '+' : '-';
+    
+    return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes + ':' + seconds + offsetSign + offsetHours + ':' + offsetMinutes;
+}
+
 async function loadData() {
     try {
         var booksResult = await supabaseClient.from('books').select('title, author').order('title');
@@ -490,7 +510,7 @@ async function submitActivityMinutes() {
     }
 
     try {
-        var today = new Date().toISOString();
+        var today = getLocalISOString();
         
         var result = await supabaseClient.from('activity_minutes').insert({
             activity: activity,
@@ -522,7 +542,7 @@ async function submitActivityTimes() {
     }
 
     try {
-        var today = new Date().toISOString();
+        var today = getLocalDateTime();
         
         var result = await supabaseClient.from('activity_times').insert({
             activity: activity,
