@@ -11,25 +11,6 @@ var isNewEntry = false;
 var existingTimesRead = 0; // Store the existing read count
 
 
-// Get local time with timezone offset
-function getLocalDateTime() {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = String(now.getMonth() + 1).padStart(2, '0');
-    var day = String(now.getDate()).padStart(2, '0');
-    var hours = String(now.getHours()).padStart(2, '0');
-    var minutes = String(now.getMinutes()).padStart(2, '0');
-    var seconds = String(now.getSeconds()).padStart(2, '0');
-    
-    // Get timezone offset in format +10:00 or -05:00
-    var offset = -now.getTimezoneOffset();
-    var offsetHours = String(Math.floor(Math.abs(offset) / 60)).padStart(2, '0');
-    var offsetMinutes = String(Math.abs(offset) % 60).padStart(2, '0');
-    var offsetSign = offset >= 0 ? '+' : '-';
-    
-    return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes + ':' + seconds + offsetSign + offsetHours + ':' + offsetMinutes;
-}
-
 async function loadData() {
     try {
         var booksResult = await supabaseClient.from('books').select('title, author').order('title');
@@ -434,163 +415,6 @@ async function loadBookRatings() {
     }
 }
 
-// Load activity options and user names
-async function loadActivityTrackerData() {
-    try {
-        // Load unique activities from activity_minutes table
-        var minutesResult = await supabaseClient.from('activity_minutes').select('activity');
-        
-        var minutesActivities = new Set();
-        if (minutesResult.data) {
-            minutesResult.data.forEach(function(item) {
-                if (item.activity) {
-                    minutesActivities.add(item.activity);
-                }
-            });
-        }
-
-        // Load unique activities from activity_times table
-        var timesResult = await supabaseClient.from('activity_times').select('activity');
-        
-        var timesActivities = new Set();
-        if (timesResult.data) {
-            timesResult.data.forEach(function(item) {
-                if (item.activity) {
-                    timesActivities.add(item.activity);
-                }
-            });
-        }
-
-        // Populate activityList1 with only activity_minutes activities
-        var minutesArray = Array.from(minutesActivities).sort();
-        var datalist1 = document.getElementById('activityList1');
-        datalist1.innerHTML = minutesArray.map(function(activity) {
-            return '<option value="' + activity + '">';
-        }).join('');
-
-        // Populate activityList2 with only activity_times activities
-        var timesArray = Array.from(timesActivities).sort();
-        var datalist2 = document.getElementById('activityList2');
-        datalist2.innerHTML = timesArray.map(function(activity) {
-            return '<option value="' + activity + '">';
-        }).join('');
-
-        // Load users from lookup_users table
-        var usersResult = await supabaseClient.from('lookup_users').select('name').order('name');
-        
-        if (usersResult.data && usersResult.data.length > 0) {
-            var userOptions = usersResult.data.map(function(user) {
-                return '<option value="' + user.name + '"' + 
-                       (user.name === 'Ellen' ? ' selected' : '') + '>' + 
-                       user.name + '</option>';
-            }).join('');
-            
-            document.getElementById('completer1').innerHTML = userOptions;
-            document.getElementById('completer2').innerHTML = userOptions;
-            document.getElementById('completer3').innerHTML = userOptions;
-        } else {
-            // Fallback if no users found
-            document.getElementById('completer1').innerHTML = '<option value="Ellen">Ellen</option>';
-            document.getElementById('completer2').innerHTML = '<option value="Ellen">Ellen</option>';
-            document.getElementById('completer3').innerHTML = '<option value="Ellen">Ellen</option>';
-        }
-    } catch (error) {
-        console.error('Error loading activity tracker data:', error);
-    }
-}
-
-async function submitActivityMinutes() {
-    var completer = document.getElementById('completer1').value;
-    var minutes = parseInt(document.getElementById('minutes').value);
-    var activity = document.getElementById('activity1').value.trim();
-
-    if (!activity || !minutes || minutes <= 0) {
-        alert('Please fill in all fields with valid values');
-        return;
-    }
-
-    try {
-        var today = getLocalISOString();
-        
-        var result = await supabaseClient.from('activity_minutes').insert({
-            activity: activity,
-            minutes: minutes,
-            date_completed: today,
-            completer: completer
-        });
-
-        if (result.error) throw result.error;
-
-        alert('Activity logged successfully!');
-        document.getElementById('minutes').value = 20;
-        document.getElementById('activity1').value = '';
-        loadActivityTrackerData(); // Refresh the activity list
-    } catch (error) {
-        console.error('Error submitting activity minutes:', error);
-        alert('Error logging activity: ' + error.message);
-    }
-}
-
-async function submitActivityTimes() {
-    var completer = document.getElementById('completer2').value;
-    var times = parseInt(document.getElementById('times').value);
-    var activity = document.getElementById('activity2').value.trim();
-
-    if (!activity || !times || times <= 0) {
-        alert('Please fill in all fields with valid values');
-        return;
-    }
-
-    try {
-        var today = getLocalDateTime();
-        
-        var result = await supabaseClient.from('activity_times').insert({
-            activity: activity,
-            times: times,
-            date_completed: today,
-            completer: completer
-        });
-
-        if (result.error) throw result.error;
-
-        alert('Activity logged successfully!');
-        document.getElementById('times').value = 5;
-        document.getElementById('activity2').value = '';
-        loadActivityTrackerData(); // Refresh the activity list
-    } catch (error) {
-        console.error('Error submitting activity times:', error);
-        alert('Error logging activity: ' + error.message);
-    }
-}
-
-async function submitOverheard() {
-    var completer = document.getElementById('completer3').value;
-    var overheardText = document.getElementById('overheardText').value.trim();
-
-    if (!overheardText) {
-        alert('Please enter what you overheard');
-        return;
-    }
-
-    try {
-        var now = new Date().toISOString();
-        
-        var result = await supabaseClient.from('things_overheard').insert({
-            overheard: overheardText,
-            date_completed: now,
-            completer: completer
-        });
-
-        if (result.error) throw result.error;
-
-        alert('Overheard entry saved successfully!');
-        document.getElementById('overheardText').value = '';
-    } catch (error) {
-        console.error('Error submitting overheard:', error);
-        alert('Error saving entry: ' + error.message);
-    }
-}
-
 // Add this function to fetch and display the bar chart
 async function loadBarChart() {
     try {
@@ -634,9 +458,8 @@ async function loadBarChart() {
 // Call this function when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     loadData();
-    loadBarChart(); 
-    loadActivityTrackerData();
-    loadBookRatings(); 
+    loadBarChart();
+    loadBookRatings();
     
     // ... rest of your existing DOMContentLoaded code
     var bookSearch = document.getElementById('bookSearch');

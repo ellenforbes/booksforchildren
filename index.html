@@ -24,50 +24,6 @@
             <button class="action-button search-btn">🔍 Search for a Review</button>
         </div>
 
-        <div class="divider"></div>
-
-        <div class="activity-section">
-            <div class="activity-tracker">
-                
-                <!-- Activity Minutes Entry -->
-                <div class="activity-row">
-                    <span class="activity-text">I, </span>
-                    <select id="completer1" class="inline-select name-select"></select>
-                    <span class="activity-text">, spent </span>
-                    <input type="number" id="minutes" class="inline-number" min="1" value="20">
-                    <span class="activity-text"> minutes </span>
-                    <input type="text" id="activity1" class="inline-text" list="activityList1" placeholder="activity">
-                    <datalist id="activityList1"></datalist>
-                    <span class="activity-text">.</span>
-                    <button class="inline-submit-btn" onclick="submitActivityMinutes()">Submit</button>
-                </div>
-
-                <!-- Activity Times Entry -->
-                <div class="activity-row">
-                    <span class="activity-text">I, </span>
-                    <select id="completer2" class="inline-select name-select"></select>
-                    <span class="activity-text">, was </span>
-                    <input type="text" id="activity2" class="inline-text" list="activityList2" placeholder="activity">
-                    <datalist id="activityList2"></datalist>
-                    <span class="activity-text"> </span>
-                    <input type="number" id="times" class="inline-number" min="1" value="5">
-                    <span class="activity-text"> times.</span>
-                    <button class="inline-submit-btn" onclick="submitActivityTimes()">Submit</button>
-                </div>
-
-                <!-- Overheard Entry -->
-                <div class="activity-row">
-                    <span class="activity-text">I, </span>
-                    <select id="completer3" class="inline-select name-select"></select>
-                    <span class="activity-text">, overheard </span>
-                    <input type="text" id="overheardText" class="inline-text" placeholder="what did you hear?">
-                    <button class="inline-submit-btn" onclick="submitOverheard()">Submit</button>
-                </div>
-
-            </div>
-        </div>
-
-
         <!-- Log Book Modal -->
         <div id="logBookModal" class="modal">
             <div class="modal-content">
